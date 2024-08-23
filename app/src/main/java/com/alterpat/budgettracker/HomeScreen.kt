@@ -16,23 +16,36 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.Dimension
+import com.alterpat.budgettracker.data.model.ExpenseEntity
 import com.alterpat.budgettracker.ui.theme.Green
 import com.alterpat.budgettracker.ui.theme.Red
 import com.alterpat.budgettracker.ui.theme.Zinc
+import com.alterpat.budgettracker.viewmodel.HomeViewModel
+import com.alterpat.budgettracker.viewmodel.HomeViewModelFactory
 
 
 @Composable
 fun HomeScreen(){
+
+    val viewModel : HomeViewModel =
+        HomeViewModelFactory(LocalContext.current)
+        .create(HomeViewModel::class.java)
+
     Surface(modifier = Modifier.fillMaxSize()){
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val (nameRow, list, card, topBar) = createRefs()
@@ -56,22 +69,26 @@ fun HomeScreen(){
                     Text(text = "Welcome to Budget Tracker",
                         fontSize = 25.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.LightGray)
+                        color = Color.White)
 
                     Text(text = "Version-1.0.0",
                         fontSize = 13.sp,
-                        color = Color.LightGray)
+                        color = Color.White)
                 }
                 Image(
                     painter = painterResource(id = R.drawable.ic_notification),
                     contentDescription = null,
                     modifier = Modifier.align(Alignment.CenterEnd))
             }
+            val state = viewModel.expense.collectAsState(initial = emptyList())
+            val balance = viewModel.getBalance(state.value)
+            val expense = viewModel.getTotalExpense(state.value)
+            val income = viewModel.getTotalIncome(state.value)
             CardItem(modifier = Modifier.constrainAs(card){
                 top.linkTo(nameRow.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
-            })
+            }, balance, income, expense)
             TransactionList(modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(list) {
@@ -80,16 +97,17 @@ fun HomeScreen(){
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                     height = Dimension.fillToConstraints
-                })
+                }, list = state.value)
         }
     }
 }
 
 @Composable
-fun CardItem(modifier: Modifier){
+fun CardItem(modifier: Modifier, balance: String, income: String, expense: String){
     Column (modifier = modifier
         .padding(20.dp)
         .fillMaxWidth()
+        .shadow(10.dp)
         .clip(RoundedCornerShape(15.dp))
         .background(color = Zinc)
         .padding(20.dp)
@@ -99,8 +117,8 @@ fun CardItem(modifier: Modifier){
             .fillMaxWidth()
             .weight(1f)) {
             Column(modifier = Modifier.align(Alignment.CenterStart)) {
-                Text(text = "Total Balance", fontSize = 25.sp, color = Color.LightGray, fontWeight = FontWeight.Bold)
-                Text(text = "5000tk", fontSize = 20.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
+                Text(text = "Total Balance", fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                Text(text = balance, fontSize = 20.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
             }
             Image(
                 painter = painterResource(id = R.drawable.dots_menu),
@@ -114,49 +132,43 @@ fun CardItem(modifier: Modifier){
             CardRowItem(modifier = Modifier.align(Alignment.CenterStart),
                 image = R.drawable.ic_income,
                 title = "Income",
-                amount = "7000tk")
+                amount = income)
             CardRowItem(modifier = Modifier.align(Alignment.CenterEnd),
                 image = R.drawable.ic_expense,
                 title = "Expense",
-                amount = "2000tk")
+                amount = expense)
         }
 
     }
 }
 
 @Composable
-fun TransactionList(modifier: Modifier){
-    Column (modifier = modifier
+fun TransactionList(modifier: Modifier, list: List<ExpenseEntity>){
+    LazyColumn (modifier = modifier
         .fillMaxWidth()
         .padding(horizontal = 15.dp)){
-        Box(modifier = Modifier.fillMaxWidth()){
-            Text(text = "Recent Transactions", fontSize = 20.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
-            Text(
-                text = "See All",
-                fontSize = 20.sp,
-                color = Color.DarkGray,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.TopEnd)
-            )
+        item {
+            Box(modifier = Modifier.fillMaxWidth()){
+                Text(text = "Recent Transactions", fontSize = 20.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "See All",
+                    fontSize = 20.sp,
+                    color = Color.DarkGray,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                )
+            }
         }
 
-        TransactionListItems(title = "Netflix",
-            amount = "300tk",
-            icon = R.drawable.ic_netflix,
-            date = "22/08/2024",
-            amountColor = Red)
+        items(list){ item ->
+            TransactionListItems(
+                title = item.title,
+                amount = item.amount.toString(),
+                icon = if (item.type == "Expense") R.drawable.ic_netflix else R.drawable.ic_paypal,
+                date = item.date.toString(),
+                amountColor = if(item.type == "Expense") Red else Green)
+        }
 
-        TransactionListItems(title = "Upwork",
-            amount = "500tk",
-            icon = R.drawable.ic_upwork,
-            date = "22/08/2024",
-            amountColor = Green)
-
-        TransactionListItems(title = "Star Bucks",
-            amount = "600tk",
-            icon = R.drawable.ic_starbucks,
-            date = "22/08/2024",
-            amountColor = Red)
     }
 }
 
@@ -166,7 +178,7 @@ fun CardRowItem(modifier: Modifier, image: Int, title: String, amount: String){
         Row {
             Image(painter = painterResource(id = image), contentDescription = null)
             Spacer(modifier = Modifier.size(5.dp))
-            Text(text = title, fontSize = 20.sp, color = Color.LightGray, fontWeight = FontWeight.Bold)
+            Text(text = title, fontSize = 20.sp, color = Color.White, fontWeight = FontWeight.Bold)
         }
         Text(text = amount, fontSize = 20.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
     }
@@ -174,13 +186,18 @@ fun CardRowItem(modifier: Modifier, image: Int, title: String, amount: String){
 
 @Composable
 fun TransactionListItems(title: String, amount: String, icon: Int, date: String, amountColor: Color){
-    Box(modifier = Modifier.fillMaxWidth()
+    Box(modifier = Modifier
+        .fillMaxWidth()
         .padding(top = 10.dp)
+        .shadow(10.dp)
         .clip(RoundedCornerShape(15.dp))
-        .background(color = Color.LightGray)
-        .padding(10.dp)){
+        .background(color = Color.White)
+        .padding(10.dp)
+        ){
         Row {
-            Image(painter = painterResource(id = icon), contentDescription = null, modifier = Modifier.size(50.dp))
+            Image(painter = painterResource(id = icon),
+                contentDescription = null,
+                modifier = Modifier.size(50.dp))
             Spacer(modifier = Modifier.size(5.dp))
             Column {
                 Text(text = title, fontSize = 20.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)

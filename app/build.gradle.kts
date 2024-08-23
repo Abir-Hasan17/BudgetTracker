@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
@@ -69,4 +70,10 @@ dependencies {
 
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    annotationProcessor(libs.androidx.room.compiler)
+
+    //kotlin annotation processor
+    kapt("androidx.room:room-compiler:2.6.1")
 }
