@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,13 +42,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.alterpat.budgettracker.data.model.ExpenseEntity
 import com.alterpat.budgettracker.viewmodel.AddExpenseViewModel
 import com.alterpat.budgettracker.viewmodel.AddExpenseViewModelFactory
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddExpenseScreen(){
+fun AddExpenseScreen(navController: NavController){
 
     val viewModel : AddExpenseViewModel =
         AddExpenseViewModelFactory(LocalContext.current)
@@ -101,7 +104,9 @@ fun AddExpenseScreen(){
                 },
                 onAddExpenseClick = {
                     coroutineScope.launch {
-                        viewModel.addExpense(it)
+                        if(viewModel.addExpense(it)){
+                            navController.popBackStack()
+                        }
                     }
                 }
             )
@@ -177,7 +182,11 @@ fun DataForm(modifier: Modifier, onAddExpenseClick:(model:ExpenseEntity) -> Unit
                 .padding(top = 5.dp)
                 .height(50.dp)
                 .clickable { datePickerDialogVisibility.value = true },
-            enabled = false
+            enabled = false,
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledBorderColor = Color.Black,
+                disabledTextColor = Color.Black,
+            )
         )
 
         //DropDown for category, We do not need it.
@@ -283,7 +292,6 @@ fun ExpenseCategoryDropdown(ListOfItem: List<String>, onItemSelected: (item: Str
                         expanded.value = false
                 })
             }
-            
         }
     }
 }
@@ -291,5 +299,5 @@ fun ExpenseCategoryDropdown(ListOfItem: List<String>, onItemSelected: (item: Str
 @Composable
 @Preview(showBackground = true)
 fun AddExpensePreview(){
-    AddExpenseScreen()
+    AddExpenseScreen(rememberNavController())
 }

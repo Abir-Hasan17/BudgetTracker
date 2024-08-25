@@ -8,6 +8,7 @@ import androidx.compose.material3.Surface
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.alterpat.budgettracker.data.model.ExpenseEntity
 import com.alterpat.budgettracker.ui.theme.Green
 import com.alterpat.budgettracker.ui.theme.Red
@@ -40,7 +43,7 @@ import com.alterpat.budgettracker.viewmodel.HomeViewModelFactory
 
 
 @Composable
-fun HomeScreen(){
+fun HomeScreen(navController: NavController){
 
     val viewModel : HomeViewModel =
         HomeViewModelFactory(LocalContext.current)
@@ -48,7 +51,7 @@ fun HomeScreen(){
 
     Surface(modifier = Modifier.fillMaxSize()){
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-            val (nameRow, list, card, topBar) = createRefs()
+            val (nameRow, list, card, topBar, addButton) = createRefs()
             Image(painter = painterResource(id = R.drawable.ic_topbar), contentDescription = null,
                 modifier = Modifier.constrainAs(topBar){
                     top.linkTo(parent.top)
@@ -84,11 +87,13 @@ fun HomeScreen(){
             val balance = viewModel.getBalance(state.value)
             val expense = viewModel.getTotalExpense(state.value)
             val income = viewModel.getTotalIncome(state.value)
+
             CardItem(modifier = Modifier.constrainAs(card){
                 top.linkTo(nameRow.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }, balance, income, expense)
+
             TransactionList(modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(list) {
@@ -97,7 +102,24 @@ fun HomeScreen(){
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                     height = Dimension.fillToConstraints
-                }, list = state.value)
+                }, list = state.value
+            )
+
+            Image(painter = painterResource(id = R.drawable.ic_add),
+                contentDescription = null,
+                modifier = Modifier
+                    .constrainAs(addButton){
+                        bottom.linkTo(parent.bottom)
+                        end.linkTo(parent.end)
+                    }
+                    .padding(bottom = 80.dp, end = 20.dp)
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(15.dp))
+                    .background(color = Color.LightGray)
+                    .clickable {
+                        navController.navigate("/add")
+                    }
+            )
         }
     }
 }
@@ -215,5 +237,5 @@ fun TransactionListItems(title: String, amount: String, icon: Int, date: String,
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview(){
-    HomeScreen()
+    HomeScreen(rememberNavController())
 }

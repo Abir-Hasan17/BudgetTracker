@@ -3,6 +3,7 @@ package com.alterpat.budgettracker.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.alterpat.budgettracker.Utils
 import com.alterpat.budgettracker.data.ExpenseDataBase
 import com.alterpat.budgettracker.data.dao.ExpenseDao
 import com.alterpat.budgettracker.data.model.ExpenseEntity
@@ -17,7 +18,7 @@ class HomeViewModel(dao: ExpenseDao) : ViewModel() {
             if(it.type == "Income") total+=it.amount
             else total-=it.amount
         }
-        return "$total tk"
+        return "${Utils.toConventionalDecimalValue(total)} tk"
     }
 
     fun getTotalExpense(list : List<ExpenseEntity>) : String{
@@ -25,7 +26,7 @@ class HomeViewModel(dao: ExpenseDao) : ViewModel() {
         list.forEach{
             if(it.type == "Expense") total+=it.amount
         }
-        return "$total tk"
+        return "${Utils.toConventionalDecimalValue(total)} tk"
     }
 
     fun getTotalIncome(list : List<ExpenseEntity>) : String{
@@ -33,7 +34,7 @@ class HomeViewModel(dao: ExpenseDao) : ViewModel() {
         list.forEach{
             if(it.type == "Income") total+=it.amount
         }
-        return "$total tk"
+        return "${Utils.toConventionalDecimalValue(total)} tk"
     }
 }
 
