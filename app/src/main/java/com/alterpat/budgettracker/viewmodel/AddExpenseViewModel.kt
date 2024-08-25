@@ -25,8 +25,8 @@ class AddExpenseViewModelFactory(private val context: Context) : ViewModelProvid
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(AddExpenseViewModel::class.java)){
             val dao = ExpenseDataBase.getDataBase(context).expenseDao()
-            @Suppress("UNCHECKED_CAAST")
-            return HomeViewModel(dao) as T
+            @Suppress("UNCHECKED_CAST")
+            return AddExpenseViewModel(dao) as T
         }
         throw IllegalArgumentException("Unknown View Model Class")
     }

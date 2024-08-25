@@ -43,7 +43,7 @@ class HomeViewModelFactory(private val context: Context) : ViewModelProvider.Fac
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(HomeViewModel::class.java)){
             val dao = ExpenseDataBase.getDataBase(context).expenseDao()
-            @Suppress("UNCHECKED_CAAST")
+            @Suppress("UNCHECKED_CAST")
             return HomeViewModel(dao) as T
         }
         throw IllegalArgumentException("Unknown View Model Class")

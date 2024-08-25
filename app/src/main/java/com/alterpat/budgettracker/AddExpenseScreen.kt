@@ -47,11 +47,12 @@ import com.alterpat.budgettracker.viewmodel.AddExpenseViewModelFactory
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddExpense(){
+fun AddExpenseScreen(){
 
     val viewModel : AddExpenseViewModel =
         AddExpenseViewModelFactory(LocalContext.current)
             .create(AddExpenseViewModel::class.java)
+
     val coroutineScope = rememberCoroutineScope()
 
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -98,7 +99,7 @@ fun AddExpense(){
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-                onAddEpenseClick = {
+                onAddExpenseClick = {
                     coroutineScope.launch {
                         viewModel.addExpense(it)
                     }
@@ -109,7 +110,7 @@ fun AddExpense(){
 }
 
 @Composable
-fun DataForm(modifier: Modifier, onAddEpenseClick:(model:ExpenseEntity) -> Unit){
+fun DataForm(modifier: Modifier, onAddExpenseClick:(model:ExpenseEntity) -> Unit){
 
     val title = remember {
         mutableStateOf("")
@@ -205,7 +206,7 @@ fun DataForm(modifier: Modifier, onAddEpenseClick:(model:ExpenseEntity) -> Unit)
                 date.value,
                 type.value
             )
-            onAddEpenseClick(model)
+            onAddExpenseClick(model)
         }, modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp)) {
@@ -290,5 +291,5 @@ fun ExpenseCategoryDropdown(ListOfItem: List<String>, onItemSelected: (item: Str
 @Composable
 @Preview(showBackground = true)
 fun AddExpensePreview(){
-    AddExpense()
+    AddExpenseScreen()
 }
