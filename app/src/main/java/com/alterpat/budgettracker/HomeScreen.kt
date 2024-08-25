@@ -164,8 +164,8 @@ fun TransactionList(modifier: Modifier, list: List<ExpenseEntity>){
             TransactionListItems(
                 title = item.title,
                 amount = item.amount.toString(),
-                icon = if (item.type == "Expense") R.drawable.ic_netflix else R.drawable.ic_paypal,
-                date = item.date.toString(),
+                icon = if (item.type == "Expense") R.drawable.ic_expense_icon else R.drawable.ic_income_logo,
+                date = Utils.toHumanReadableDate(item.date),
                 amountColor = if(item.type == "Expense") Red else Green)
         }
 
@@ -187,8 +187,8 @@ fun CardRowItem(modifier: Modifier, image: Int, title: String, amount: String){
 @Composable
 fun TransactionListItems(title: String, amount: String, icon: Int, date: String, amountColor: Color){
     Box(modifier = Modifier
-        .fillMaxWidth()
         .padding(top = 10.dp)
+        .fillMaxWidth()
         .shadow(10.dp)
         .clip(RoundedCornerShape(15.dp))
         .background(color = Color.White)

@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.navigation.compose)
     annotationProcessor(libs.androidx.room.compiler)
 
     //kotlin annotation processor
